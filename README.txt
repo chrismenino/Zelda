@@ -1,0 +1,1 @@
+Replace webport/site/style.css and webport/site/sw.js in your repository with these files, then Commit and Push. Open the Home Screen app in landscape. The overlay is transparent and the screen is edge-to-edge. This does not expand the original game camera horizontally; native widescreen rendering would require engine changes.
