@@ -1,0 +1,55 @@
+name: Build Zelda for iPhone Safari
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find or unpack game source
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f scripts/build_web.sh ]]; then
+            dir=.
+          elif [[ -f webport/scripts/build_web.sh ]]; then
+            dir=webport
+          else
+            archive="Zelda-Flame-and-Lantern-iPhone-Browser-Project.zip"
+            test -f "$archive" || { echo "Upload $archive to the root of this repository"; exit 1; }
+            mkdir -p extracted
+            unzip -q "$archive" -d extracted
+            dir=extracted/webport
+          fi
+          test -f "$dir/scripts/build_web.sh"
+          echo "GAME_DIR=$dir" >> "$GITHUB_ENV"
+      - uses: emscripten-core/setup-emsdk@v16
+      - name: Compile browser game
+        run: cd "$GAME_DIR" && bash scripts/build_web.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zelda-iphone-browser-website
+          path: ${{ env.GAME_DIR }}/site/
+      - name: Configure GitHub Pages
+        if: ${{ github.event.repository.visibility == 'public' }}
+        uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        if: ${{ github.event.repository.visibility == 'public' }}
+        with:
+          path: ${{ env.GAME_DIR }}/site/
+      - name: Deploy to GitHub Pages
+        if: ${{ github.event.repository.visibility == 'public' }}
+        uses: actions/deploy-pages@v4
+        id: deployment

@@ -1,0 +1,49 @@
+TEST f=0 module=0 sub=0 stage=0 world=0 area=0 xy=0,0 hp=0
+TEST f=120 module=0 sub=3 stage=0 world=0 area=0 xy=0,0 hp=0
+TEST f=240 module=5 sub=0 stage=0 world=0 area=0 xy=0,0 hp=24
+TEST f=360 module=14 sub=2 stage=1 world=64 area=5b xy=2032,1628 hp=48
+TEST f=480 module=14 sub=2 stage=1 world=64 area=5b xy=2032,1628 hp=48
+RAY render average 0.682 ms over 600 frames; gameplay RAM unchanged
+TEST f=600 module=14 sub=2 stage=1 world=64 area=5b xy=2032,1628 hp=48
+TEST f=720 module=14 sub=2 stage=1 world=64 area=5b xy=2032,1628 hp=48
+TEST f=840 module=9 sub=0 stage=1 world=64 area=5b xy=2032,1696 hp=48
+CACHE builds=64 hits=2936 lights=5
+TEST f=960 module=14 sub=2 stage=2 world=64 area=5b xy=2032,1716 hp=48
+TEST f=1080 module=14 sub=2 stage=2 world=64 area=5b xy=2032,1716 hp=48
+RAY render average 0.926 ms over 1200 frames; gameplay RAM unchanged
+TEST f=1200 module=9 sub=0 stage=2 world=64 area=5b xy=2032,1773 hp=48
+TEST f=1320 module=14 sub=2 stage=3 world=64 area=5b xy=2032,1880 hp=48
+TEST f=1440 module=14 sub=2 stage=3 world=64 area=5b xy=2032,1880 hp=48
+CACHE builds=144 hits=5590 lights=4
+TEST f=1560 module=14 sub=2 stage=3 world=64 area=5b xy=2032,1880 hp=48
+TEST checkpoint reload
+TEST f=1680 module=9 sub=0 stage=3 world=64 area=5b xy=2032,1686 hp=48
+RAY render average 1.003 ms over 1800 frames; gameplay RAM unchanged
+TEST f=1800 module=9 sub=0 stage=3 world=64 area=5b xy=2032,1776 hp=48
+TEST f=1920 module=9 sub=0 stage=3 world=64 area=5b xy=2032,1911 hp=48
+TEST f=2040 module=14 sub=2 stage=4 world=64 area=5b xy=2032,1992 hp=48
+CACHE builds=312 hits=8391 lights=6
+TEST f=2160 module=14 sub=2 stage=4 world=64 area=5b xy=2032,1992 hp=48
+TEST f=2280 module=14 sub=2 stage=5 world=64 area=5b xy=2032,1992 hp=48
+RAY render average 1.029 ms over 2400 frames; gameplay RAM unchanged
+TEST f=2400 module=14 sub=2 stage=5 world=64 area=5b xy=2032,1992 hp=48
+TEST completed reload
+TEST f=2520 module=14 sub=2 stage=6 world=0 area=5b xy=2368,8538 hp=24
+TEST f=2640 module=14 sub=2 stage=6 world=0 area=5b xy=2368,8538 hp=24
+CACHE builds=317 hits=10586 lights=1
+TEST f=2760 module=14 sub=2 stage=6 world=0 area=5b xy=2368,8538 hp=24
+TEST f=2880 module=14 sub=2 stage=6 world=0 area=5b xy=2368,8538 hp=24
+RAY render average 1.029 ms over 3000 frames; gameplay RAM unchanged
+TEST f=3000 module=14 sub=2 stage=6 world=0 area=5b xy=2368,8538 hp=24
+TEST f=3120 module=14 sub=2 stage=6 world=0 area=5b xy=2368,8538 hp=24
+TEST f=3240 module=14 sub=2 stage=6 world=0 area=5b xy=2368,8538 hp=24
+CACHE builds=317 hits=11186 lights=1
+TEST f=3360 module=14 sub=2 stage=6 world=0 area=5b xy=2368,8538 hp=24
+TEST f=3480 module=14 sub=2 stage=6 world=0 area=5b xy=2368,8538 hp=24
+RAY render average 1.033 ms over 3600 frames; gameplay RAM unchanged
+TEST f=3600 module=14 sub=2 stage=6 world=0 area=5b xy=2368,8538 hp=24
+TEST f=3720 module=14 sub=2 stage=6 world=0 area=5b xy=2368,8535 hp=24
+TEST f=3840 module=7 sub=0 stage=6 world=0 area=5b xy=2368,8535 hp=24
+CACHE builds=320 hits=11783 lights=1
+TEST f=3960 module=7 sub=0 stage=6 world=0 area=5b xy=2368,8535 hp=24
+TEST f=4080 module=7 sub=0 stage=6 world=0 area=5b xy=2368,8535 hp=24
