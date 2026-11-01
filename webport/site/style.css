@@ -43,42 +43,35 @@ h1 {font-size:clamp(12px,3vw,19px);letter-spacing:.18em;font-family:Georgia,seri
 @media (orientation:portrait) { .play{flex-direction:column;align-items:stretch}.stage{width:100%;flex:0 0 auto;min-height:0;max-height:44dvh}.controls{width:100%; flex:1;flex-direction:row;justify-content:space-between;gap:5px;padding:0 3vw}.dpad{width:38vw;height:38vw;max-height:37dvh}.actions{width:37vw;height:37vw}.status{display:none}.mini{gap:3px}.pill{padding:6px 8px}.shoulders{gap:6px}.shoulder{padding:6px 13px}.legend{font-size:9px;gap:11px;} }
 @media (max-height:350px) and (orientation:landscape) {.topbar{min-height:28px}.brand small{display:none}.play{gap:12px}.stage{max-width:calc((100dvh - 45px) * 1.7)}.dpad{width:min(17vw,53dvh);height:min(17vw,53dvh)}.actions{width:min(14vw,48dvh);height:min(14vw,48dvh)}.mini{gap:4px}.mini .pill{padding:4px 6px}.controls{width:44vw;}}
 
-/* iPhone landscape immersive overlay — v3 */
-html,body {background:#000; }
-body {padding:0;gap:0;display:block;}
-.topbar {position:fixed;z-index:12;top:calc(env(safe-area-inset-top) + 5px);right:calc(env(safe-area-inset-right) + 8px);min-height:0;pointer-events:none;}
-.brand,.status,.legend {display:none!important;}
-.toolbar {pointer-events:auto;gap:6px;}
-.tool {background:#10172288;border:1px solid #ffffff33;color:white;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);width:32px;height:32px;}
-.play {position:fixed;inset:0;display:block;overflow:hidden;}
-.stage {position:absolute;inset:0;width:100%;height:100%;max-width:none;max-height:none;aspect-ratio:auto;border:0;outline:0;box-shadow:none;border-radius:0;background:#000;}
-.stage canvas {width:100%;height:100%;object-fit:contain;}
-.controls {position:absolute;z-index:8;inset:0;width:100%;max-height:none;display:flex;flex-direction:row;justify-content:space-between;align-items:flex-end;padding:0 calc(env(safe-area-inset-right) + 12px) calc(env(safe-area-inset-bottom) + 9px) calc(env(safe-area-inset-left) + 12px);pointer-events:none;gap:0;}
-.leftside,.rightside {pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:7px;}
-.controls button {pointer-events:auto;opacity:.53;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);touch-action:none;}
-.controls button.active {opacity:.9;}
-.dpad {width:clamp(116px,21dvh,175px);height:clamp(116px,21dvh,175px);max-height:none;filter:none;}
-.actions {width:clamp(120px,22dvh,175px);height:clamp(120px,22dvh,175px);}
-.dir {background:#14203588;border:1px solid #ffffff55;box-shadow:none;}
-.dcenter {background:#14203577;}
-.ab {border:1px solid #ffffff66;box-shadow:none;background:#1d314b99;}
-.xy,.ay,.bx,.by {background:#223c5599;}
-.shoulder {background:#14203599;padding:5px 16px;}
-.pill {background:#14203599;padding:6px 10px;}
-.options {z-index:20;}
-.loading {z-index:10;}
-@media (orientation:landscape) {
-  .play {display:block;}
-  .stage {width:100%;height:100%;max-width:none;}
-  .controls {width:100%;max-height:none;align-items:flex-end;justify-content:space-between;}
-  .leftside,.rightside {gap:6px;}
-  .dpad {width:clamp(105px,34dvh,190px);height:clamp(105px,34dvh,190px);}
-  .actions {width:clamp(110px,34dvh,185px);height:clamp(110px,34dvh,185px);}
-}
+/* v4: home-screen viewport, fullscreen playfield and accessible touch targets */
+html,body {width:100%;height:100%;height:100dvh;margin:0;padding:0;overflow:hidden;background:#000;}
+body {display:block;}
+.play {position:fixed;inset:0;width:100vw;height:100dvh;display:block;overflow:hidden;}
+.stage {position:absolute;inset:0;width:100%;height:100%;max-width:none;max-height:none;aspect-ratio:auto;min-width:0;border:0;outline:0;border-radius:0;box-shadow:none;overflow:hidden;}
+.stage canvas {position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;}
+.topbar {position:fixed;top:calc(env(safe-area-inset-top) + 6px);right:calc(env(safe-area-inset-right) + 9px);left:auto;min-height:0;z-index:20;pointer-events:none;}
+.topbar .brand,.topbar .status,.legend {display:none!important;}
+.toolbar {pointer-events:auto;}
+.tool {width:44px;height:44px;background:#111a26a8;border:1px solid #ffffff55;border-radius:12px;}
+.controls {position:fixed;inset:0;width:100%;height:100%;max-height:none;display:flex;flex-direction:row;justify-content:space-between;align-items:flex-end;padding:0 calc(env(safe-area-inset-right) + 12px) calc(env(safe-area-inset-bottom) + 10px) calc(env(safe-area-inset-left) + 12px);pointer-events:none;z-index:9;gap:0;}
+.leftside,.rightside {pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.controls button {pointer-events:auto;opacity:.50;touch-action:none;-webkit-touch-callout:none;box-shadow:none;}
+.controls button.active {opacity:.90;}
+.dpad {position:relative;width:clamp(172px,43dvh,255px);height:clamp(172px,43dvh,255px);max-height:none;max-width:none;filter:none;touch-action:none;pointer-events:auto;}
+.dir {border:1px solid #ffffff55;background:#1d2c3c99;border-radius:12px;}
+.dir.up,.dir.down {height:40%;width:40%;left:30%;}
+.dir.left,.dir.right {width:40%;height:40%;top:30%;}
+.dcenter {inset:38%;background:#17263855;}
+.actions {width:clamp(176px,42dvh,255px);height:clamp(176px,42dvh,255px);}
+.ab {width:41%;height:41%;border:1px solid #ffffff77;background:#203247a8;font-size:clamp(18px,4dvh,27px);}
+.xy {left:29.5%;top:0;} .ay {right:0;top:29.5%;} .bx {left:29.5%;bottom:0;} .by {left:0;top:29.5%;}
+.pill,.shoulder {min-width:56px;min-height:44px;background:#1d2c3caa;border:1px solid #ffffff55;border-radius:12px;padding:7px 12px;}
+.shoulders,.mini {gap:8px;}
+.options {z-index:30;}
+.toast {z-index:35;}
 @media (orientation:portrait) {
-  .play {display:block;}
-  .stage {width:100%;height:100%;max-height:none;}
-  .controls {width:100%;height:100%;align-items:flex-end;padding-bottom:calc(env(safe-area-inset-bottom) + 22px);}
-  .dpad {width:35vw;height:35vw;max-height:none;}
-  .actions {width:36vw;height:36vw;}
+ .controls {flex-direction:row;width:100%;height:100%;align-items:flex-end;padding-bottom:calc(env(safe-area-inset-bottom) + 18px);}
+ .dpad {width:40vw;height:40vw;max-height:none;}
+ .actions {width:41vw;height:41vw;}
+ .pill,.shoulder {min-width:44px;min-height:44px;padding:6px;}
 }

@@ -1,4 +1,4 @@
-const VERSION = 'flame-lantern-iphone-v3-landscape-overlay';
+const VERSION = 'flame-lantern-iphone-v2-audio';
 const FILES = ['./','./index.html','./app.js','./style.css','./icon.svg','./manifest.webmanifest','./game.js','./game.wasm','./game.data'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(VERSION).then(cache=>cache.addAll(FILES).catch(err=>console.warn('Offline cache incomplete',err))));

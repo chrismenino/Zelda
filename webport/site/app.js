@@ -3,7 +3,7 @@
 const $ = id => document.getElementById(id);
 const start = $('start'), loading = $('loading'), message = $('loadMsg'), status = $('status');
 const controls = [...document.querySelectorAll('[data-button]')];
-let initialized = false, loadingStarted = false, syncInProgress = false, syncPending = false;
+let initialized = false, engineReady = false, loadingStarted = false, syncInProgress = false, syncPending = false;
 let held = new Set(), pads = new Set(), keyboard = new Set(), pointers = new Map();
 let toastTimer = 0;
 let gamepadId = null;
@@ -30,6 +30,26 @@ function setPointer(e, n) {
   if (n===null) pointers.delete(e.pointerId); else pointers.set(e.pointerId, n);
   reconcile();
 }
+// Expand directional hit detection across the entire D-pad; supports sliding.
+const dpad = $('dpad');
+const directionAt = (x,y) => {
+  const r=dpad.getBoundingClientRect(), dx=x-(r.left+r.width/2), dy=y-(r.top+r.height/2);
+  if (Math.abs(dx)<r.width*.10 && Math.abs(dy)<r.height*.10) return null;
+  return Math.abs(dx)>Math.abs(dy) ? (dx<0?2:3) : (dy<0?0:1);
+};
+dpad.addEventListener('pointerdown',e=>{
+  if(!initialized)return;
+  e.preventDefault(); e.stopPropagation();
+  dpad.setPointerCapture(e.pointerId);
+  setPointer(e,directionAt(e.clientX,e.clientY));
+  resumeAudio();
+});
+dpad.addEventListener('pointermove',e=>{
+  if(!dpad.hasPointerCapture(e.pointerId))return;
+  e.preventDefault();setPointer(e,directionAt(e.clientX,e.clientY));
+});
+for(const type of ['pointerup','pointercancel','lostpointercapture'])
+  dpad.addEventListener(type,e=>setPointer(e,null));
 controls.forEach(btn => {
   btn.addEventListener('pointerdown', e => {
     if (!initialized) return;
@@ -49,7 +69,7 @@ controls.forEach(btn => {
 window.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT') return;
   const n = keyMap[e.key];
-  if (n!==undefined) {e.preventDefault();keyboard.add(n);reconcile();}
+  if (n!==undefined) {e.preventDefault();keyboard.add(n);reconcile();resumeAudio();}
 });
 window.addEventListener('keyup', e => {const n = keyMap[e.key]; if(n!==undefined){ e.preventDefault(); keyboard.delete(n);reconcile(); }});
 window.addEventListener('blur', () => { keyboard.clear();pointers.clear();reconcile(); autoSave(); });
@@ -80,10 +100,38 @@ function pollPad(){
 }
 requestAnimationFrame(pollPad);
 function resumeAudio() {
-  for(const possible of [window.SDL?.audioContext, window.Module?.SDL2?.audioContext]) {
-    if (possible?.state==='suspended') possible.resume().catch(()=>{});
+  // SDL2's Emscripten audio driver keeps its AudioContext on Module.SDL2.
+  // This MUST run synchronously inside a user gesture on iPhone Safari.
+  const ctx = window.Module?.SDL2?.audioContext || window.SDL2?.audioContext || window.SDL?.audioContext;
+  if (!ctx) return 'not-created';
+  if (ctx.state === 'running') return 'running';
+  if (ctx.state === 'closed') return 'closed';
+  try {
+    const request = ctx.resume();
+    if (request?.then) request.then(() => updateSoundStatus()).catch(err => console.warn('Could not resume game audio', err));
+    return 'resuming';
+  } catch (err) {
+    console.warn('Could not resume game audio', err);
+    return 'blocked';
   }
 }
+function updateSoundStatus() {
+  const ctx = window.Module?.SDL2?.audioContext;
+  const running = ctx?.state === 'running';
+  $('sound').textContent = running ? '🔊' : '🔇';
+  $('sound').setAttribute('aria-label', running ? 'Retry game sound' : 'Enable game sound');
+  return running;
+}
+$('sound').addEventListener('click', () => {
+  const result = resumeAudio();
+  const ctx = window.Module?.SDL2?.audioContext;
+  if (ctx && ctx.state === 'running') toast('Game audio is running');
+  else if (result === 'not-created') toast('Start the game first, then retry sound');
+  else if (result === 'closed') toast('Reload the game to restart audio');
+  else toast('Audio restart requested — check iPhone volume / Silent Mode');
+  updateSoundStatus();
+});
+
 function sync(){
   if (!initialized || !window.FS) return;
   if (syncInProgress) {syncPending=true;return;}
@@ -153,6 +201,12 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)autoSave();
 window.addEventListener('pagehide',autoSave);
 // Once installed, the app can run offline after successful first caching.
 if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('./sw.js').catch(console.warn);
+// Preload assets and WebAssembly while the start overlay is on screen.
+// SDL_OpenAudioDevice must run *inside* the user's Start tap to satisfy iOS
+// Safari's audio gesture policy. The engine is linked with INVOKE_RUN=0.
+start.disabled = true;
+start.textContent = 'PREPARING GAME…';
+message.textContent = 'Downloading and preparing game engine…';
 window.Module = {
   canvas: $('canvas'),
   print: (...args)=>console.log(...args),
@@ -160,33 +214,52 @@ window.Module = {
   setStatus: text => {if(text){message.textContent=String(text);status.textContent='Loading…';}},
   monitorRunDependencies: left => { $('progress').style.width = left?Math.max(10,95-left*13)+'%':'95%'; },
   onAbort: what => {message.textContent='Could not start game: '+what;start.hidden=false;start.textContent='RETRY';status.textContent='Error';},
-  postRun: [()=>{
-    initialized=true;
+  onRuntimeInitialized: () => {
+    engineReady = true;
     window.FS = window.Module.FS;
-    $('progress').style.width='100%';
-    loading.hidden=true;
-    status.textContent='Playing';
-    resumeAudio();
-    toast('Tip: rotate your iPhone to landscape');
-  }],
+    $('progress').style.width = '100%';
+    message.textContent = 'Ready! Tap to begin with sound.';
+    start.disabled = false;
+    start.textContent = 'BEGIN ADVENTURE';
+    status.textContent = 'Ready';
+  },
 };
-start.addEventListener('click',()=>{
-  if(loadingStarted){location.reload();return;}
-  loadingStarted=true;
-  start.hidden=true;
-  message.textContent='Compiling adventure in your browser…';
-  status.textContent='Loading…';
-  fetch('./game.js',{method:'HEAD'}).then(res=>{
-    if(!res.ok) throw new Error('WebAssembly build missing');
-    const script=document.createElement('script');
-    script.src='./game.js';script.async=true;
-    script.onerror=()=>{loadingStarted=false;start.hidden=false;message.textContent='Game engine missing. Publish the compiled site first.';};
-    document.body.appendChild(script);
-  }).catch(err=>{
-    loadingStarted=false;start.hidden=false;start.textContent='TRY AGAIN';
-    message.textContent='Not compiled yet. Follow README to publish the playable browser version.';
-    status.textContent='Build needed';
-    console.error(err);
-  });
+start.addEventListener('click', () => {
+  if (!engineReady || loadingStarted) return;
+  loadingStarted = true;
+  start.hidden = true;
+  message.textContent = 'Starting your adventure…';
+  try {
+    // This synchronous call creates SDL2's AudioContext inside the user's tap.
+    window.Module.callMain([]);
+    initialized = true;
+    window.FS = window.Module.FS;
+    loading.hidden = true;
+    status.textContent = 'Playing';
+    resumeAudio();
+    updateSoundStatus();
+    toast('Audio started — rotate iPhone to landscape');
+  } catch (err) {
+    console.error('Game failed to start', err);
+    initialized = false;
+    loadingStarted = false;
+    start.hidden = false;
+    start.disabled = false;
+    start.textContent = 'RETRY';
+    message.textContent = 'Could not start game: ' + (err?.message || err);
+    status.textContent = 'Error';
+  }
 });
+// The engine can be loaded before a gesture. Main is NOT started until tap.
+const script = document.createElement('script');
+script.src = './game.js';
+script.async = true;
+script.onerror = () => {
+  start.disabled = false;
+  start.textContent = 'RETRY DOWNLOAD';
+  message.textContent = 'Game engine missing — check that the GitHub build succeeded.';
+  status.textContent = 'Download failed';
+  start.addEventListener('click', () => location.reload(), {once:true});
+};
+document.body.appendChild(script);
 })();
