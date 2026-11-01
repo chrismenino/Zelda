@@ -1,0 +1,82 @@
+{
+  "title": "The Ashen Crown",
+  "version": "phase1",
+  "setting": "Dark World volcanic mountain range near Death Mountain",
+  "currentPlayableEntry": "Existing pyramid prologue, now rewritten as an Ashen Crown vision; mountain temple not yet implemented",
+  "chapters": [
+    {
+      "id": "ashen_pass",
+      "name": "Ashen Pass",
+      "objectives": [
+        "Recover the lantern",
+        "Navigate ember storms",
+        "Open the ruined mountain gate"
+      ],
+      "rooms": 8
+    },
+    {
+      "id": "hollow_village",
+      "name": "Hollow Village",
+      "objectives": [
+        "Meet the last bell keeper",
+        "Recover the first seal",
+        "Survive a night ambush"
+      ],
+      "rooms": 7
+    },
+    {
+      "id": "citadel",
+      "name": "Citadel of Cinders",
+      "objectives": [
+        "Ignite three braziers",
+        "Solve the shadow-mirror puzzle",
+        "Claim the Crown Key"
+      ],
+      "floors": [
+        {
+          "name": "The Threshold",
+          "rooms": 9,
+          "mechanic": "braziers"
+        },
+        {
+          "name": "Hall of Echoes",
+          "rooms": 10,
+          "mechanic": "light and shadow"
+        },
+        {
+          "name": "The Black Forge",
+          "rooms": 8,
+          "mechanic": "heat and moving platforms"
+        }
+      ]
+    },
+    {
+      "id": "warden",
+      "name": "Ashbound Warden",
+      "objectives": [
+        "Break three shield seals",
+        "Defeat the Warden",
+        "Return to Hyrule"
+      ],
+      "phases": [
+        "Ember Sweep",
+        "Shadow Split",
+        "Crownfall"
+      ]
+    }
+  ],
+  "flags": [
+    "LANTERN_ACQUIRED",
+    "PASS_GATE_OPEN",
+    "VILLAGE_BELL_LIT",
+    "SEAL_FLAME",
+    "SEAL_SHADOW",
+    "SEAL_MEMORY",
+    "CROWN_KEY",
+    "WARDEN_DEFEATED"
+  ],
+  "saveDesign": {
+    "reservedBytes": "Existing save slot extension 0x4e0/0x4e1 for compatibility; allocate additional bits only after verifying engine SRAM layout",
+    "compatibility": "Existing saves must not be reset"
+  }
+}

@@ -12,6 +12,9 @@
 #define DWA_TAG 0xd7
 #define DWA_DONE 6
 #define DWA_MSG 397
+#define DWA_ROUTE g_ram[0xf4e2]
+#define DWA_BRAZIERS g_ram[0xf4e3]
+#define DWA_GATE g_ram[0xf4e4]
 
 void DarkPrologue_OnLoad(void) {
   if (DWA_MAGIC != DWA_TAG) {
@@ -19,6 +22,9 @@ void DarkPrologue_OnLoad(void) {
     if (sram_progress_indicator != 0 || link_sword_type != 0) return;
     DWA_MAGIC = DWA_TAG;
     DWA_STAGE = 0;
+    DWA_ROUTE = 0;
+    DWA_BRAZIERS = 0;
+    DWA_GATE = 0;
   }
   if (DWA_STAGE >= DWA_DONE) return;
   sram_progress_indicator = 2;
@@ -69,13 +75,20 @@ void DarkPrologue_Tick(void) {
     return;
   }
   if (main_module_index != 9 || submodule_index != 0) return;
-  if (DWA_STAGE == 5) { ReturnHome(); return; }
+  // The end is now player-initiated at the summit gate, not automatic.
+  if (DWA_STAGE == 5 && DWA_GATE == 1) { ReturnHome(); return; }
   // Constrain the opening to the pyramid. Leaving reloads its safe summit.
   if ((overworld_area_index & 0x3f) != 0x1b || player_is_indoors) {
     main_module_index = 5;
     return;
   }
   unsigned y = link_y_coord - 0x600;
+  // Track Ashen Pass milestones as persistent progress in the save slot.
+  uint8 route = y >= 440 ? 3 : y >= 300 ? 2 : y >= 180 ? 1 : 0;
+  if (route > DWA_ROUTE) {
+    DWA_ROUTE = route;
+    SaveGameFile();
+  }
   if (DWA_STAGE == 0) { Tell(0, 1); return; }
   if (DWA_STAGE == 1 && y >= 180) {
     link_sword_type = link_shield_type = 1;
@@ -88,6 +101,8 @@ void DarkPrologue_Tick(void) {
   } else if (DWA_STAGE == 3 && y >= 440) {
     Tell(3, 4);
   } else if (DWA_STAGE == 4 && y >= 420 && (filtered_joypad_L & 0x80)) {
+    // Gate opens only on player interaction after the mountain approach.
+    DWA_GATE = 1;
     Tell(4, 5);
   }
 }

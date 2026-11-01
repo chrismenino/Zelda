@@ -13,9 +13,10 @@ emcc "${GAME_SOURCES[@]}" -I . -O2 \
   -sINITIAL_MEMORY=100663296 \
   -sMAXIMUM_MEMORY=536870912 \
   -sFORCE_FILESYSTEM=1 \
+  -sINVOKE_RUN=0 \
   -sENVIRONMENT=web \
   -sEXPORTED_FUNCTIONS=_main,_WebButton,_WebSave,_WebLoad,_WebToggleLight,_WebCycleLight,_WebFPS,_WebPause \
-  -sEXPORTED_RUNTIME_METHODS=FS \
+  -sEXPORTED_RUNTIME_METHODS=FS,callMain \
   -sDISABLE_EXCEPTION_CATCHING=1 \
   -lidbfs.js \
   --pre-js web/preload.js \
